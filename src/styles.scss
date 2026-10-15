@@ -37,3 +37,8 @@ body {
   height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
+
+mat-toolbar[color="primary"] {
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+}
