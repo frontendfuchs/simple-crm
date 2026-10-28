@@ -42,3 +42,11 @@ mat-toolbar[color="primary"] {
   background-color: var(--mat-sys-primary);
   color: var(--mat-sys-on-primary);
 }
+
+.add-user-dialog .mat-mdc-dialog-surface {
+  border-radius: 8px;
+}
+
+.add-user-dialog .mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content {
+  padding-top: 20px;
+}
