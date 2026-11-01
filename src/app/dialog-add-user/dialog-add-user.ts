@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Firestore } from '@angular/fire/firestore';
-import { MatDialogModule } from '@angular/material/dialog';
+import { Firestore, Timestamp, addDoc, collection } from '@angular/fire/firestore';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -9,6 +9,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
 import {User as UserModel } from '../../models/user.class';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+
 
 @Component({
   imports: [MatDialogModule,
@@ -18,7 +20,8 @@ import {User as UserModel } from '../../models/user.class';
     MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    FormsModule
+    FormsModule,
+    MatProgressBarModule
   ],
   selector: 'app-dialog-add-user',
   styleUrl: './dialog-add-user.scss',
@@ -26,7 +29,9 @@ import {User as UserModel } from '../../models/user.class';
 })
 export class DialogAddUser {
     user = new UserModel();
+    loading = signal(false);
     private firestore = inject(Firestore);
+    private dialogRef = inject(MatDialogRef<DialogAddUser>);
 
     constructor(){ }
 
@@ -35,8 +40,19 @@ export class DialogAddUser {
     }
 
     saveUser(){
-      const birthTimestamp = this.user.birthDate?.getTime() ?? null;
-      console.log('Current user is', this.user, birthTimestamp);
-      
+      this.loading.set(true);
+
+      const userData = {
+        ...this.user.toJSON(),
+        birthDate: this.user.birthDate ? Timestamp.fromDate(this.user.birthDate) : null,
+      };
+
+      addDoc(collection(this.firestore, 'users'), userData)
+        .then((result) => {
+          console.log('Adding user finished', result);
+          this.dialogRef.close();
+        })
+        .catch((error) => console.error('Adding user failed', error))
+        .finally(() => this.loading.set(false));
     }
 }
